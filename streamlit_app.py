@@ -2,7 +2,7 @@
 import streamlit as st
 from db import get_events, get_event_seats, get_user_bookings
 from booking import create_booking
-from auth import login_user
+from auth import login_user, register_user
 
 st.set_page_config(
     page_title="SeatLock",
