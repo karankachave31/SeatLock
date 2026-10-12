@@ -14,7 +14,6 @@ def get_connection():
 
     return psycopg.connect(database_url)
 
-
 def get_events():
     with get_connection() as conn:
         with conn.cursor() as cur:
