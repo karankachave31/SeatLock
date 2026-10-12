@@ -1,14 +1,17 @@
 import os
 import psycopg
 
+
 def get_connection():
-    return psycopg.connect(
-        host=os.getenv("DB_HOST", "localhost"),
-        port=os.getenv("DB_PORT", "5432"),
-        dbname=os.getenv("DB_NAME", "seatlock_db"),
-        user=os.getenv("DB_USER", "postgres"),
-        password=os.environ["DB_PASSWORD"]
+    database_url = st.secrets.get(
+        "DATABASE_URL",
+        os.environ.get("DATABASE_URL")
     )
+
+    if not database_url:
+        raise ValueError("DATABASE_URL is missing.")
+
+    return psycopg.connect(database_url)
 
 
 def get_events():
