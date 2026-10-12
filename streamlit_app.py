@@ -21,38 +21,71 @@ if "selected_seats" not in st.session_state:
 st.title("🎟️ SeatLock")
 st.caption("Smart Event Reservation System")
 
+
 # --------------------------------
-# LOGIN SCREEN
+# LOGIN AND REGISTRATION
 # --------------------------------
 if st.session_state["user"] is None:
-    st.subheader("Login to continue")
+    st.subheader("Welcome to SeatLock")
 
-    with st.form("seatlock_login"):
-        email = st.text_input("Email address")
-        password = st.text_input(
-            "Password",
-            type="password"
-        )
-        submitted = st.form_submit_button("Login")
+    login_tab, register_tab = st.tabs(["Login", "Register"])
 
-    if submitted:
-        try:
-            user = login_user(email, password)
+    with login_tab:
+        with st.form("seatlock_login"):
+            email = st.text_input("Email address", key="login_email")
+            password = st.text_input(
+                "Password",
+                type="password",
+                key="login_password"
+            )
+            submitted = st.form_submit_button("Login")
 
-            if user:
-                st.session_state["user"] = user
-                st.rerun()
+        if submitted:
+            try:
+                user = login_user(email, password)
+                if user:
+                    st.session_state["user"] = user
+                    st.rerun()
+                else:
+                    st.error("Invalid email or password.")
+            except Exception:
+                st.error(
+                    "Unable to log in. Check the database connection "
+                    "and Streamlit secrets."
+                )
+
+    with register_tab:
+        with st.form("seatlock_register"):
+            name = st.text_input("Full name", key="register_name")
+            new_email = st.text_input("Email address", key="register_email")
+            new_password = st.text_input(
+                "Password (minimum 8 characters)",
+                type="password",
+                key="register_password"
+            )
+            confirm_password = st.text_input(
+                "Confirm password",
+                type="password",
+                key="confirm_password"
+            )
+            register_submitted = st.form_submit_button("Create account")
+
+        if register_submitted:
+            if new_password != confirm_password:
+                st.error("Passwords do not match.")
             else:
-                st.error("Invalid email or password.")
+                try:
+                    register_user(name, new_email, new_password)
+                    st.success(
+                        "Account created! Please select the Login tab."
+                    )
+                except ValueError as error:
+                    st.error(str(error))
+                except Exception:
+                    st.error(
+                        "Registration failed. Check the database connection."
+                    )
 
-        except Exception as error:
-            st.error("Unable to log in. Check your database connection.")
-            st.code(str(error))
-
-    st.info(
-        "New to SeatLock? Register first by running "
-        "`streamlit run test_auth.py` in another terminal."
-    )
     st.stop()
 
 # --------------------------------
